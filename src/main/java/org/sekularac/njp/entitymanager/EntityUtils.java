@@ -44,20 +44,14 @@ public class EntityUtils {
         return superClasses;
     }
 
-    public static Object handleEnum(Field field, Object obj) {
+    public static Object handleEnum(Field field) {
         if (field.isAnnotationPresent(Enumerated.class)) {
-            try {
-                Object object = field.get(obj);
-                Enumerated enumerated = (Enumerated) object;
+            Enumerated enumerated = field.getAnnotation(Enumerated.class);
 
-                if (enumerated.type() == EnumeratedType.ORDINAL) {
-                    return enumerated.type().ordinal();
-                } else {
-                    return enumerated.type().toString();
-                }
-
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
+            if (enumerated.type() == EnumeratedType.ORDINAL) {
+                return enumerated.type().ordinal();
+            } else {
+                return enumerated.type().toString();
             }
         }
         return null;
