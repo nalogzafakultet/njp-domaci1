@@ -1,12 +1,14 @@
-package org.sekularac.njp.annotations.classes;
+package org.sekularac.njp.annotations.field;
+
+import org.sekularac.njp.annotations.enums.EnumeratedType;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-@Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface Entity {
-    String table() default "";
+@Target(ElementType.FIELD)
+public @interface Enumerated {
+    EnumeratedType type();
 }

@@ -2,32 +2,76 @@ package org.sekularac.njp.entitymanager;
 
 import org.sekularac.njp.annotations.classes.Entity;
 import org.sekularac.njp.entitymanager.exceptions.NoEntityException;
+import org.sekularac.njp.entitymanager.exceptions.NoPrimaryKeyException;
 import org.sekularac.njp.entitymanager.exceptions.NoTransactionException;
 
-import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 
 public class EntityManager {
+
     private Transaction transaction;
 
     public Transaction getTransaction() {
-        return new Transaction();
+        if (transaction == null) {
+            transaction = new Transaction();
+        }
+        return transaction;
     }
 
     public void persist(Object obj) {
 
+        // If persist isn't within the scope of transaction
         if (transaction == null || !transaction.isActive()) {
             throw new NoTransactionException("Transaction doesn't exist! Please begin a transaction.");
         }
 
-        if (!isEntity(obj)) {
+        // If we're trying to persist a non-entity
+        if (!EntityUtils.isEntity(obj.getClass())) {
             transaction.rollback();
             throw new NoEntityException("This object isnt an Entity!");
         }
 
 
+
     }
 
     public Object find(Class aClass, Object primaryKey) {
+
+        if (primaryKey == null) {
+            throw new NullPointerException("primaryKey is null");
+        }
+
+        if (!EntityUtils.isEntity(aClass)) {
+            throw new NoEntityException("This class is not an entity!");
+        }
+
+        if (transaction == null || !transaction.isActive()) {
+            throw new NoTransactionException("There should be a transaction scope active!");
+        }
+
+        Field primaryKeyField = EntityUtils.findPrimaryKeyField(aClass);
+        if (primaryKeyField == null) {
+            transaction.rollback();
+            throw new NoPrimaryKeyException("Class " + aClass + " has no primary key field!");
+        }
+
+        Class primaryKeyClass = primaryKeyField.getType();
+
+        if (primaryKey.getClass() != primaryKeyClass) {
+            System.out.println(primaryKey.getClass().getSimpleName());
+            System.out.println(primaryKeyClass);
+            transaction.rollback();
+            throw new RuntimeException("Primary key provided is not the same as the one with ID");
+        }
+
+        String tableName = EntityUtils.getTableName(aClass);
+        String columnName = EntityUtils.getIdColumnName(primaryKeyField);
+        String query = String.format(
+                "SELECT * FROM %s WHERE %s=%s",
+                tableName, columnName, primaryKey.toString()
+        );
+
+        transaction.addQuery(query);
         return null;
     }
 
@@ -39,16 +83,4 @@ public class EntityManager {
         return null;
     }
 
-    private boolean isEntity(Object obj) {
-        Class objectClass = obj.getClass();
-        Annotation[] annotations = objectClass.getAnnotations();
-
-        for (Annotation annotation: annotations) {
-            if (annotation instanceof Entity) {
-                return true;
-            }
-        }
-
-        return false;
-    }
 }

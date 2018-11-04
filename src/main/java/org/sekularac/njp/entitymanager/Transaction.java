@@ -8,7 +8,7 @@ public class Transaction {
     private List<String> queries;
     private boolean active;
 
-    private void addQuery(String query) {
+    public void addQuery(String query) {
         queries.add(query);
     }
 
