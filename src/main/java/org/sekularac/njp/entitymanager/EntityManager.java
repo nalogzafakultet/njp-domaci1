@@ -6,6 +6,8 @@ import org.sekularac.njp.entitymanager.exceptions.NoPrimaryKeyException;
 import org.sekularac.njp.entitymanager.exceptions.NoTransactionException;
 
 import java.lang.reflect.Field;
+import java.util.List;
+import java.util.Map;
 
 public class EntityManager {
 
@@ -31,8 +33,25 @@ public class EntityManager {
             throw new NoEntityException("This object isnt an Entity!");
         }
 
+        if (!EntityUtils.isPrimaryKeyPresent(obj)) {
+            throw new NoPrimaryKeyException("Class " + obj.getClass() + " has no primary key field!");
+        }
 
+        Map<String, Object> keyVals = EntityUtils.getEntityValues(obj);
 
+        String tableName = EntityUtils.getTableName(obj.getClass());
+        List<String> columnNames = EntityUtils.getColumnNames(keyVals);
+
+        String columnsQuery = EntityUtils.insertColumnNamesQuery(columnNames);
+
+        String valuesForColumns = EntityUtils.valuesForColumnsQuery(columnNames, keyVals);
+
+        String insertStatement = String.format(
+                "INSERT INTO %s (%s) VALUES (%s)",
+                tableName, columnsQuery, valuesForColumns
+        );
+
+        transaction.addQuery(insertStatement);
     }
 
     public Object find(Class aClass, Object primaryKey) {

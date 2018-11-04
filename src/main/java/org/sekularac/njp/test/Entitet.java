@@ -3,18 +3,15 @@ package org.sekularac.njp.test;
 import org.sekularac.njp.annotations.classes.Entity;
 import org.sekularac.njp.annotations.classes.MappedSuperclass;
 import org.sekularac.njp.annotations.classes.Table;
+import org.sekularac.njp.annotations.enums.EnumeratedType;
+import org.sekularac.njp.annotations.enums.GenerationType;
 import org.sekularac.njp.annotations.enums.TemporalType;
-import org.sekularac.njp.annotations.field.Column;
-import org.sekularac.njp.annotations.field.Id;
-import org.sekularac.njp.annotations.field.Temporal;
+import org.sekularac.njp.annotations.field.*;
 
 import java.util.Date;
 
 @Entity
 public class Entitet extends Cale {
-
-    @Id
-    private Long id;
 
     @Column
     private String name;
@@ -23,27 +20,32 @@ public class Entitet extends Cale {
     private String type;
 
     @Temporal(TemporalType.DATE)
+    @Column
     private Date date;
 
+    @Enumerated(EnumeratedType.ORDINAL)
+    private GenerationType generationType;
+
     public Entitet() {
+        super();
         System.out.println("Instanciram entitet.");
     }
 
-    public Entitet(long id, String name, String type, Date date) {
-        this.id = id;
+    public Entitet(Long id, String name, String type, Date date, GenerationType generationType) {
+        super(id);
         this.name = name;
         this.type = type;
         this.date = date;
+        this.generationType = generationType;
     }
 
-    public long getId() {
-        return id;
+    public GenerationType getGenerationType() {
+        return generationType;
     }
 
-    public void setId(long id) {
-        this.id = id;
+    public void setGenerationType(GenerationType generationType) {
+        this.generationType = generationType;
     }
-
     public String getName() {
         return name;
     }
