@@ -13,7 +13,7 @@ public class Main {
 //        Entitet entitet = new Entitet(1L, "Entitet1", "Tip", new Date(), GenerationType.DB_GENERATION);
 
         Entitet entitet = new Entitet();
-        entitet.setDate(new Date());
+//        entitet.setDate(new Date());
         entitet.setId(1L);
         entitet.setGenerationType(GenerationType.DB_GENERATION);
 

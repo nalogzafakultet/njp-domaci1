@@ -86,6 +86,9 @@ public class EntityUtils {
             field.setAccessible(true);
             try {
                 Date objectDate = (Date) field.get(obj);
+                if (objectDate == null) {
+                    return null;
+                }
                 return dateFormat.format(objectDate);
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
