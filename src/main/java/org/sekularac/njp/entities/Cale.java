@@ -1,4 +1,4 @@
-package org.sekularac.njp.test;
+package org.sekularac.njp.entities;
 
 import org.sekularac.njp.annotations.classes.MappedSuperclass;
 import org.sekularac.njp.annotations.field.Id;

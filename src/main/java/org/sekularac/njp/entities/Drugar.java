@@ -1,4 +1,4 @@
-package org.sekularac.njp.test;
+package org.sekularac.njp.entities;
 
 import org.sekularac.njp.annotations.classes.Entity;
 import org.sekularac.njp.annotations.classes.Table;

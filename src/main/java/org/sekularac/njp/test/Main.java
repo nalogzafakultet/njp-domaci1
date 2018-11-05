@@ -1,12 +1,8 @@
 package org.sekularac.njp.test;
 
-import org.sekularac.njp.annotations.classes.Entity;
 import org.sekularac.njp.annotations.enums.GenerationType;
+import org.sekularac.njp.entities.Entitet;
 import org.sekularac.njp.entitymanager.EntityManager;
-import org.sekularac.njp.entitymanager.EntityUtils;
-
-import java.lang.reflect.Field;
-import java.util.Date;
 
 public class Main {
     public static void main(String[] args) {
@@ -40,9 +36,6 @@ public class Main {
 
 
 //        System.out.println(EntityUtils.getEntityValues(entitet));
-
-        Integer integer = new Integer(5);
-        System.out.println(integer.toString());
     }
 
 }

@@ -1,8 +1,6 @@
-package org.sekularac.njp.test;
+package org.sekularac.njp.entities;
 
 import org.sekularac.njp.annotations.classes.Entity;
-import org.sekularac.njp.annotations.classes.MappedSuperclass;
-import org.sekularac.njp.annotations.classes.Table;
 import org.sekularac.njp.annotations.enums.EnumeratedType;
 import org.sekularac.njp.annotations.enums.GenerationType;
 import org.sekularac.njp.annotations.enums.TemporalType;
@@ -22,7 +20,7 @@ public class Entitet extends Cale {
     @Temporal(TemporalType.DATE)
     @Column
     private Date date;
-    
+
     @ManyToOne
     @JoinColumn(name = "drugar_id",
             foreignKey = @ForeignKey(name = "DRUGAR_FK")
