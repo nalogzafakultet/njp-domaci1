@@ -16,12 +16,18 @@ public class Entitet extends Cale {
     @Column
     private String name;
 
-    @Column(name = "Nemanja")
+    @Column
     private String type;
 
     @Temporal(TemporalType.DATE)
     @Column
     private Date date;
+    
+    @ManyToOne
+    @JoinColumn(name = "drugar_id",
+            foreignKey = @ForeignKey(name = "DRUGAR_FK")
+    )
+    private Drugar drugar;
 
     @Enumerated(EnumeratedType.ORDINAL)
     private GenerationType generationType;
@@ -68,5 +74,24 @@ public class Entitet extends Cale {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public Drugar getDrugar() {
+        return drugar;
+    }
+
+    public void setDrugar(Drugar drugar) {
+        this.drugar = drugar;
+    }
+
+    @Override
+    public String toString() {
+        return "Entitet{" +
+                "name='" + name + '\'' +
+                ", type='" + type + '\'' +
+                ", date=" + date +
+                ", drugar=" + drugar +
+                ", generationType=" + generationType +
+                '}';
     }
 }

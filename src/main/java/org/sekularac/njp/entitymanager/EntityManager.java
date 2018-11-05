@@ -1,6 +1,7 @@
 package org.sekularac.njp.entitymanager;
 
 import org.sekularac.njp.annotations.classes.Entity;
+import org.sekularac.njp.entitymanager.exceptions.IdNullException;
 import org.sekularac.njp.entitymanager.exceptions.NoEntityException;
 import org.sekularac.njp.entitymanager.exceptions.NoPrimaryKeyException;
 import org.sekularac.njp.entitymanager.exceptions.NoTransactionException;
@@ -12,6 +13,8 @@ import java.util.Map;
 public class EntityManager {
 
     private Transaction transaction;
+
+
 
     public Transaction getTransaction() {
         if (transaction == null) {
@@ -37,6 +40,12 @@ public class EntityManager {
             throw new NoPrimaryKeyException("Class " + obj.getClass() + " has no primary key field!");
         }
 
+        Field primaryKeyField = EntityUtils.findPrimaryKeyField(obj.getClass());
+
+        if (EntityUtils.isObjectEmpty(primaryKeyField, obj)) {
+            throw new IdNullException("Id shouldnt be null!");
+        }
+
         Map<String, Object> keyVals = EntityUtils.getEntityValues(obj);
 
         String tableName = EntityUtils.getTableName(obj.getClass());
@@ -52,6 +61,7 @@ public class EntityManager {
         );
 
         transaction.addQuery(insertStatement);
+
     }
 
     public Object find(Class aClass, Object primaryKey) {
@@ -91,6 +101,9 @@ public class EntityManager {
         );
 
         transaction.addQuery(query);
+
+
+
         return null;
     }
 

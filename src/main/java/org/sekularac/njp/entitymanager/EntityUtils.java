@@ -6,6 +6,9 @@ import org.sekularac.njp.annotations.classes.Table;
 import org.sekularac.njp.annotations.enums.EnumeratedType;
 import org.sekularac.njp.annotations.enums.TemporalType;
 import org.sekularac.njp.annotations.field.*;
+import org.sekularac.njp.entitymanager.exceptions.IdNullException;
+import org.sekularac.njp.entitymanager.exceptions.NoJoinColumnException;
+import org.sekularac.njp.entitymanager.exceptions.NoPrimaryKeyException;
 import org.sekularac.njp.entitymanager.exceptions.ShouldntBeNullException;
 
 import java.lang.annotation.Annotation;
@@ -37,6 +40,63 @@ public class EntityUtils {
         }
 
         return superClasses;
+    }
+
+    public static boolean isManyToOne(Field field) {
+        if (field.isAnnotationPresent(ManyToOne.class)) {
+            if (!field.isAnnotationPresent(JoinColumn.class)) {
+                throw new NoJoinColumnException("There is no Join Column specified for Many to One relationship!");
+            }
+            return true;
+        }
+        return false;
+    }
+
+    public static Map<String, Object> insertManyToOne(Field field, Object object) {
+        Map<String, Object> keyVal = new HashMap<>();
+
+        JoinColumn joinColumn = field.getAnnotation(JoinColumn.class);
+        String colName = joinColumn.name();
+        if (colName.isEmpty()) {
+            String fieldName = field.getName();
+            if (fieldName.endsWith("_id")) {
+                colName = fieldName;
+            } else {
+                colName = fieldName + "_id";
+            }
+        }
+
+        // Handle if NotNull
+        validateNotNull(field, object);
+
+        field.setAccessible(true);
+        Object fkObject = null;
+        try {
+            fkObject = field.get(object);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+
+        if (fkObject == null) {
+            keyVal.put(colName, "NULL");
+            return keyVal;
+        }
+
+        // Looking for @Id in a class of a field
+        Field foreignKeyField = findPrimaryKeyField(field.getType());
+
+        if (foreignKeyField == null) {
+            throw new NoPrimaryKeyException("Class " + field.getType() + " has no corresponding ID field!");
+        }
+
+        if (isObjectEmpty(foreignKeyField, fkObject)) {
+            throw new IdNullException("Id Field shouldn't be NULL!");
+        }
+
+        Object foreignKey = objectForField(foreignKeyField, fkObject);
+        keyVal.put(colName, foreignKey);
+
+        return keyVal;
     }
 
     public static Object handleEnum(Field field, Object object) {
@@ -209,10 +269,27 @@ public class EntityUtils {
                 String columnName = getIdColumnName(field);
                 Object value = valueForAnnotatedField(field, object);
                 keyVal.put(columnName, value);
+            } else if (isManyToOne(field)) {
+                keyVal.putAll(insertManyToOne(field, object));
             }
         }
-
         return keyVal;
+    }
+
+
+    public static Object objectForField(Field field, Object object) {
+        Object fieldObject = null;
+        field.setAccessible(true);
+        try {
+             fieldObject = field.get(object);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return fieldObject;
+    }
+
+    public static boolean isObjectEmpty(Field field, Object object) {
+        return objectForField(field, object) == null;
     }
 
     private static boolean isColumn(Field field) {
